@@ -1,1 +1,1 @@
-# ikastrinos.github.io
+# Math 421. Statistical analysis with R
