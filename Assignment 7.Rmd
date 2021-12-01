@@ -1,0 +1,314 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 7: Visualization - Some aspects of ggplot2"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](fa2021_assignment7.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas
+```{r}
+# Install the necessary libraries:
+library (dplyr)
+library (ggplot2)
+library (tidyverse)
+library (lubridate)
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+
+-------
+
+### I. Questions on Your Selected Data
+
+Use the data of your own.  Produce the following types of plots and comment on each plot. Plots should be meaningful. If you use the data we used in class, make sure the plots are not the same as the ones in the slides. All plots should have title, caption, appropriate labels on x and y-axis. 
+
+-------
+
+```{r}
+titanic_data <- read_csv("titanic.csv")
+```
+
+
+1. Make a plot using `facet_wrap` by one categorical variable (`facet_wrap(~variable1)`)
+```{r}
+
+titanic_data %>% 
+  ggplot(mapping= aes(x=Age, y = Fare))+ 
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~Sex)
+
+```
+
+
+2. Make a plot using `facet_wrap` by two categorical variables (`facet_wrap(variable1~variable2)`)
+```{r}
+titanic_data %>% 
+  ggplot(mapping= aes(x=Age, y = Fare, color = Embarked))+ 
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(Sex~ Embarked)
+
+```
+
+
+3. Make a plot using `position ='jitter'`. 
+
+```{r}
+titanic_data %>% 
+  ggplot()+
+  geom_point(mapping= aes(x=Age, y = Fare, color = Embarked),
+             position='jitter')
+
+```
+
+
+4. Make a plot using `position ='dodge'`.
+```{r}
+titanic_data %>% ggplot()+
+  geom_bar(mapping= aes(x = Survived),
+             position='dodge')
+
+```
+
+
+5. Make a plot using `position ='fill'`. 
+```{r}
+titanic_data %>% ggplot()+
+  geom_bar(mapping= aes(x=Survived, fill= Sex),
+             position='fill')
+```
+
+
+6. Make a plot using `geom_col`.
+```{r}
+titanic_data %>% 
+  ggplot()+
+  geom_col(mapping= aes(x=Age, y = Fare, color = Embarked))
+```
+
+
+7. Change the theme of one of your plots. 
+
+```{r}
+# Code from the slides:
+
+
+titanic_data %>% 
+  ggplot(mapping= aes(x=Age, y = Fare))+ 
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~Sex)+
+  theme_dark() # The theme change I made was changing this to dark mode
+
+
+```
+
+
+8. Save a plot and put a link of the plot to your Github Webpage.  To link a plot `abc.png` you just need to insert the following on the README.md
+
+```{r, eval=FALSE}
+[plotsave.png](plotsave.png)
+
+# Need to double check this with the professor
+```
+
+
+### II. Questions on Covid Vaccination Data
+
+In this section of questions, we will use  the covid vaccination data for the US. The data and data dictionary can be found at the below link:
+
+- [Data](https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/us_data/time_series/vaccine_data_us_timeline.csv)
+
+- [Data Dictionary](https://github.com/govex/COVID-19/blob/master/data_tables/vaccine_data/us_data/data_dictionary.csv)
+
+
+```{r}
+library(tidyverse)
+df <- read_csv('https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/us_data/time_series/vaccine_data_us_timeline.csv')
+```
+```{r}
+df
+```
+
+
+1. Put titles, captions, appropriate labels on x and y-axis for the last two questions in Assignments 6.
+```{r}
+# Second to last question:
+
+d2 <- df %>% filter(Province_State %in% c('Massachusetts','Rhode Island','Conneticut','Maine','Vermont','New Hampshire')) %>% group_by(Date, Vaccine_Type) %>% summarise(vac_admin=mean(Doses_admin, na.rm=TRUE))
+
+
+# Visualization aspect:
+
+d2 %>% ggplot()+geom_line(mapping=aes(x=Date, y=vac_admin, color=Vaccine_Type))+
+labs(x='Date', 
+       y = 'Vaccines Administered', 
+       color='Vaccine type', 
+       title = 'Graph of the timeline of COVID 19 vaccinations', 
+       caption = 'Graph showing how vaccinations increased over time')
+```
+
+
+```{r}
+# Last question:
+df %>% filter(Province_State=='Rhode Island'|Province_State=='Massachusetts'|Province_State=='Maine' |Province_State=='Vermont'|Province_State=='New Hampshire'|Province_State=='Conneticut', Vaccine_Type=="All") %>% ggplot()+
+  geom_line(mapping = aes(x = Date, y = Doses_admin, color = Province_State))+
+labs(x='Date', 
+       y = 'Doses of the vaccine administered', 
+       color='State administered', 
+       title = 'Graph showcasing the doses of vaccines administered', 
+       caption = 'Graph showing the upward trend of vaccine doses administered')
+
+```
+
+
+2. Since the data seems lack of categorical variables, we will create a few categorical variables for easier visualization. From the `Date` variable create three categorical variables to record weekdays, months and quarters. You could also create a categorical variable to record the state regions (South, North East, Midwest, West) or other new categorical variables.
+```{r}
+
+# Month
+df$month = month(df$Date)
+
+# Weekdays
+df$weekday = wday(df$Date)
+
+# Quarters
+
+df$quarter <- quarters(df$Date)
+
+```
+
+
+```{r}
+
+```
+
+
+3. With the updated data after question 2.  Create at least 7 new meaningful graphs.  Your graphs should have titles, captions, appropriate labels on x and y-axis. You should also make use of the follows. 
+
+```{r}
+# Variables that can be used for time series on the x axis
+## Month
+#df$month = month(df$Date)
+
+# Weekdays
+#df$weekday = wday(df$Date)
+
+# Quarters
+
+#df$quarter <- quarters(df$Date)
+
+# Variables:
+
+# Province_State
+# Date
+# Vaccine_Type
+# FIPS
+# Country_Region
+
+#^^^ only useful ones for the graph
+
+# 
+
+
+
+```
+
+
+ - geom_point
+```{r}
+
+# Types of vaccine administered in each month:
+
+df %>% ggplot()+
+  geom_point(mapping=aes(x=df$month, y=Doses_admin, color=Vaccine_Type))+
+  labs(x='Month',
+       y='Number of vaccine doses administered',
+       color= 'Type of Vaccine administered',
+       title='Number of vaccines administered by Month')
+
+
+```
+ 
+ - geom_line
+```{r}
+
+df %>% ggplot()+
+  geom_line(mapping=aes(x=df$quarter, y=Doses_admin))+
+  labs(x = 'Quarter',
+       y='Number of Vaccine doses administered',
+       title ='Number of Vaccine doses administered per quarter',
+       caption = 'This shows that there were the most vaccines administered on the 4th quarter of the year')
+
+```
+ 
+ - geom_smooth
+```{r}
+df %>% ggplot() +
+  geom_smooth(mapping = aes(x = df$month, y = Doses_admin), color = "darkblue", fill = "lightblue")+
+  labs(x= 'Month',
+       y='Doses of the vaccine administered',
+       title='Number of vaccine doses administered per month')
+```
+ 
+ _ geom_bar
+```{r}
+
+df %>% ggplot()+
+  geom_bar(mapping= aes(x = Vaccine_Type))+
+  labs(x='Type of vaccine administered', title = 'Type of vaccine administered',)
+
+
+```
+ 
+ - geom_col
+```{r}
+df %>% ggplot()+
+  geom_col(mapping=aes(x=df$month, y=Doses_admin))+
+  labs(x='Month',
+       y='Vaccine doses administered',
+       title='Vaccine Doses administered per month')
+
+```
+ 
+ - facet_wrap
+```{r}
+df %>% 
+  ggplot(mapping= aes(x=df$month, y = Doses_admin))+ 
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~Vaccine_Type)+
+  theme_dark()+
+  labs(title="Doses of each vaccine administered")
+
+
+```
+ 
+ - combination of geom_point and geom_smooth
+```{r}
+df %>% 
+  ggplot(mapping= aes(x=df$month, y = Doses_admin))+ 
+  geom_point()+
+  geom_smooth()+
+  labs(title = "Vaccine doses administered by month")
+
+
+```
+ 
+
+[How many people survived the titanic based on gender](plotsave.png)
