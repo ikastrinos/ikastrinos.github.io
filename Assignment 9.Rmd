@@ -1,0 +1,212 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 9: Visualization - Revealing a graph"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](fa2021_assignment9.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+```{r}
+# Install the necessary libraries for use:
+
+library(gganimate)
+library(ggplot2)
+library(tidyverse)
+library(lubridate)
+```
+
+
+-------
+
+1. Use the dataset by of covid 19 by WHO at https://covid19.who.int/WHO-COVID-19-global-data.csv. Find the three countries with the most numbers of deaths by Covid-19. 
+```{r}
+# Read the dataset into a dataframe:
+covid_data <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
+
+# Observe the variables of the dataframe:
+
+spec(covid_data)
+
+
+```
+```{r}
+# look at examples of the data:
+
+
+covid_data
+```
+
+Find the three countries with the most numbers of deaths by Covid-19.
+```{r}
+covid_data %>% 
+  filter(Date_reported == '2021-10-31') %>%
+  arrange(-Cumulative_deaths)
+
+# According to the data the United States had the most number of cumulative
+# deaths followed by Brazil and India.
+
+
+```
+
+
+
+Hint: 
+
+-  Use `filter` to select the most current date
+```{r}
+# Use 10/31/2021
+
+covid_data %>% 
+  filter(Date_reported == '2021-10-31') # I am going to use halloween for this graph as it is better than 11/01/2021
+
+
+```
+
+
+-  Pipe with `arrange(-Cumulative_deaths)` to rank the data by the number of cumulative deaths
+```{r}
+# The resulting output are the countries that had the most number of cumulative deaths
+# on the 31st of October 2021.
+
+covid_data %>% 
+  filter(Date_reported == '2021-10-31') %>% # <--- This is what the professor means by pipe function
+  arrange(-Cumulative_deaths)
+  
+```
+
+
+2. Make a plot revealing the number of deaths in the three countries with the most numbers of deaths
+```{r}
+covid_data %>% 
+  filter(Country %in% c('United States of America','Brazil','India')) %>% 
+  ggplot(aes(y=Cumulative_deaths,
+            x=Date_reported,
+            color=Country))+ 
+  geom_line()+
+  geom_point(size=3)+
+  geom_text(aes(label = Cumulative_deaths), 
+            hjust = -.1, size=5) +
+  labs(title = 'Top 3 countries ranked by death counts', color='Country')+
+  transition_reveal(Date_reported)
+
+
+```
+
+
+3. Create the new variable (column) `death_per_cases` recording the number of deaths per cases (Hint: divide cumulative deaths by cumulative cases).  What are the three countries with the highest deaths per cases?
+```{r}
+covid_data$death_per_cases <- (covid_data$Cumulative_deaths/covid_data$Cumulative_cases)
+
+
+covid_data %>% 
+  arrange(-death_per_cases) %>% select(death_per_cases, Country)
+
+```
+
+
+4. Make a plot revealing the number of deaths per cases of the US, Italy and Mexico. 
+
+```{r}
+covid_data %>% 
+  filter(Country %in% c('United States of America','Italy','Mexico')) %>% 
+  ggplot(aes(y=death_per_cases,
+            x=Date_reported,
+            color=Country))+ 
+  geom_line()+
+  geom_point(size=3)+
+  geom_text(aes(label = death_per_cases), 
+            hjust = -.1, size=5) +
+  labs(title = 'Top 3 countries ranked by death counts', color='Country')+
+  transition_reveal(Date_reported)
+# Check with professor to make sure this is right 
+```
+
+
+5. Use `transition_reveal` to create three animated graph with the vaccination data at 
+
+https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/us_data/time_series/vaccine_data_us_timeline.csv
+
+```{r}
+
+new_covid <- read_csv("https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/us_data/time_series/vaccine_data_us_timeline.csv")
+
+# Take a general look at the data:
+
+new_covid
+
+```
+
+Graph 1:
+```{r}
+
+new_covid %>% 
+  filter(Province_State %in% c('Alabama','Rhode Island','Louisiana')) %>% 
+  ggplot(aes(y=Doses_admin, 
+            x=Date,  
+            color=Province_State))+
+  geom_line()+
+  geom_point(size=3)+
+  geom_text(aes(label = Province_State),
+            hjust = -.1, size=5) +
+  labs(title = 'Vaccines', x='Date', y='Vaccines administered')+
+  transition_reveal(Date)
+
+
+```
+
+Graph 2:
+```{r}
+new_covid %>% 
+  ggplot(aes(y=Doses_admin, 
+            x=Date))+ 
+  geom_line()+
+  geom_point(size=3)+
+  geom_text(aes(label = Doses_admin), 
+            hjust = -.1, size=5) +
+  labs(title = 'Vaccines ', x='Date', y='Vaccines administered')+
+  transition_reveal(Date) 
+
+
+```
+
+
+
+
+
+Graph 3: 
+
+
+```{r}
+# Observe the number of vaccines distributed in Nevada, California, and Utah
+
+new_covid %>% 
+  filter(Province_State %in% c('Nevada','California','Utah')) %>% 
+  ggplot(aes(y=Doses_admin,
+            x=Date, 
+            color=Province_State))+
+  geom_line()+
+  geom_point(size=3)+
+  geom_text(aes(label = Province_State),
+            hjust = -.1, size=5) +
+  labs(title = 'Vaccines', x='Date', y='Vaccines administered')+
+  transition_reveal(Date)
+
+
+```
+
