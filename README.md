@@ -11,3 +11,15 @@
 [Assignment 5](Assignment5.html)
 
 [Assignment 5XC](Assignment5xc.html)
+
+[plotsave.png](Plotsave.png)
+
+[Assignment 6](Assignment6.html)
+
+[Assignment 7](Assignment-7.html)
+
+[Assignment 8](Assignment8.html)
+
+[Assignment 9](Assignment-9.html)
+
+[Assignment 10](Assignment-10.html)
