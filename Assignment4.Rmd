@@ -65,7 +65,7 @@ df$date <- ymd(df$date)
 - Use the below codes to create `month`, `weekday` and `monthday` variables
 
 ```{r}
-
+# Month
 df$month = month(df$date)
 
 # day of the week
