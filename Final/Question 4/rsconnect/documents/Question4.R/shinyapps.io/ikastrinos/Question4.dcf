@@ -1,0 +1,13 @@
+name: Question4
+title: Question4
+username:
+account: ikastrinos
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5342543
+bundleId: 5385389
+url: https://ikastrinos.shinyapps.io/Question4/
+when: 1639761649.7072
+lastSyncTime: 1639761649.7072
+asMultiple: FALSE
+asStatic: FALSE

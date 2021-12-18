@@ -1,0 +1,14 @@
+name: Question8
+title: Question8
+username:
+account: iank
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5344260
+bundleId: 5386873
+url: https://iank.shinyapps.io/Question8/
+when: 1639792083.55805
+lastSyncTime: 1639792083.55805
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: caffeine.csv

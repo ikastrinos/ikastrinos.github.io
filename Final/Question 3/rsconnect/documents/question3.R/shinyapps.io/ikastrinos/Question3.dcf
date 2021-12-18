@@ -1,0 +1,14 @@
+name: Question3
+title: Question3
+username:
+account: ikastrinos
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5342227
+bundleId: 5385066
+url: https://ikastrinos.shinyapps.io/Question3/
+when: 1639756902.4421
+lastSyncTime: 1639756902.4421
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: adult.csv
