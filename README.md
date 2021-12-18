@@ -26,3 +26,18 @@
 
 [Assignment 11](Assignment11.html)
 
+[Question 1](https://ikastrinos.shinyapps.io/Question_1/)
+
+[Question 2](https://ikastrinos.shinyapps.io/Question2/)
+
+[Question 3](https://ikastrinos.shinyapps.io/Question3/)
+
+[Question 4](https://ikastrinos.shinyapps.io/Question4/)
+
+[Question 5](https://ikastrinos.shinyapps.io/Question5/)
+
+[Question 6](https://iank.shinyapps.io/Question6/)
+
+[Question 7](https://iank.shinyapps.io/Question7/)
+
+[Question 8](https://iank.shinyapps.io/Question8/)
