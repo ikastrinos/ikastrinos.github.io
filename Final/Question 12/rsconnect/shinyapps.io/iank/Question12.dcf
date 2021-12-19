@@ -1,0 +1,13 @@
+name: Question12
+title: Question12
+username:
+account: iank
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5349908
+bundleId: 5391574
+url: https://iank.shinyapps.io/Question12/
+when: 1639957506.24568
+lastSyncTime: 1639957506.24568
+asMultiple: FALSE
+asStatic: FALSE
