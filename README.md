@@ -26,7 +26,7 @@
 
 [Assignment 11](Assignment11.html)
 
-[Midterm][midterm.html]
+[Midterm](midterm.html)
 
 [Question 1](https://ikastrinos.shinyapps.io/Question_1/)
 
