@@ -1,0 +1,720 @@
+
+---
+title: "Fall 2021 - Math 421 - Midterm"
+output:
+  html_document:
+    toc: yes
+    toc_float: yes
+    theme: united
+  word_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Instruction
+
+The midterm has two components: the Rmarkdown notebook (html) and the presentation.  We will do the presentation in class. Post both the notebook and the presentation on your Github page. 
+
+**The notebook:** The notebook should be created using `rmarkdown` (like other assignments). The notebook should have a title. It should have a table of content (TOC form) or in a tab form. Here are the samples Rmarkdown for [TOC form](fa2021_midterm_toc.Rmd) and [tab form](fa2021_midterm_tab.Rmd)
+
+
+**The Presentation:** Present your results in 5-10 minutes. To make the presentation using Rmarkdown, do the follows: 
+
+    - In Rstudio -> File -> New File -> R markdown
+    
+    - In the left panel, click to Presentation -> Click OK
+    
+    - Now you have an Rmarkdown that can be knitted to be a html presentation 
+    
+- You can also use borrow a template of our class slides presentations. For example, [this slide](https://bryantstats.github.io/math421/slides/6_viz_fa21_2.html) has this [Rmarkdown](https://bryantstats.github.io/math421/slides/6_viz_fa21_2.Rmd)    
+    
+- You do not need to rerun all the codes for the presentation. For example, to show the model comparison, you just need to show the image of the model comparison instead of running all the models again.
+    
+- To inset an image in a slide, use  `![](image.png)`
+
+- To turn off message and warning of a code cell, use:  `{r, message=FALSE, warning=FALSE}` for the cell. 
+
+**What to present**:
+
+  - Present Part 2 - Visualization
+  
+  - Present Question Question 4, 5 and 6 in Part 3.  
+  
+  - Present any errors/challenges you run into and how you fix/overcome them. 
+
+**Data:**  
+
+The data for the mid-term project is the Rhode Island Department of Health Hospital Discharge Data.  Each row of the data presents a patient. 
+
+Link: https://drive.google.com/open?id=15QNBf6YYKocK2nNIfpKDer58kQnCPNZJ 
+
+-------
+
+## I. Data Wranggling
+```{r}
+library(tidyverse)
+library(dplyr)
+library(lubridate)
+library(gapminder)
+library(ggplot2)
+library(knitr)
+library(haven)
+library(gganimate)
+```
+
+
+1. Download the data file `hdd0318cy.sas7bdat`.  
+
+
+2. Use `read_sas` in library `haven` to read the data. 
+```{r}
+#df <- read_csv("hdd0318cy.sas7bdat")
+```
+    
+```{r}
+# Faster way that I saved midway through:
+
+df <- read_csv("midterm.csv")
+```
+    
+    
+3. Filter the data to have only patients of the year 2018 (`yod==2018`)
+```{r}
+df1 <- df %>% 
+  filter(yod=='18')
+
+
+```
+
+    
+4. Select to work with only following variables: 
+
+```{r}
+df2 <-  select(df1, "yod", "payfix","pay_ub92","age",  
+                      "sex","raceethn","provider","moa", 
+                      "yoa","mod","admtype", "asource" , 
+                      "preopday" ,"los", "service" , "icu","ccu",    
+                      "dispub92", "payer"  ,"drg","trandb", 
+                      "randbg","randbs","orr", "anes","seq",   
+                      "lab","dtest", "ther","blood","phar", 
+                      "other","patcon","bwght","total","tot" ,  
+                      "ecodub92","b_wt","pt_state","diag_adm","ancilar" ,
+                      "campus","er_fee","er_chrg","er_mode","obs_chrg",
+                      "obs_hour","psycchrg","nicu_day")                      
+
+                      #"yod", "payfix","pay_ub92","age",  
+                      #"sex","raceethn","provider","moa", 
+                      #"yoa","mod","admtype", "asource" , 
+                      #"preopday" ,"los", "service" , "icu","ccu",    
+                      #"dispub92", "payer"  ,"drg","trandb", 
+                      #"randbg","randbs","orr", "anes","seq",   
+                      #"lab","dtest", "ther","blood","phar", 
+                      #"other","patcon","bwght","total","tot" ,  
+                      #"ecodub92","b_wt","pt_state","diag_adm","ancilar" ,
+                      #"campus","er_fee","er_chrg","er_mode","obs_chrg",
+                      #"obs_hour","psycchrg","nicu_day"
+```
+ 
+
+*Notice*:  You may want to save the current data to your computer for easy access later.  To save the data file use `write_csv(df, 'midterm.csv')`, for example.
+
+```{r}
+#write_csv(df2, 'midterm.csv')
+
+# 
+```
+
+
+5. What are variables that have missing values?
+```{r}
+colSums(is.na(df2))
+
+# The variables that have missing values are as follows:
+# 1. obs_hour
+# 2. nicu_day
+# 3. preopday
+# 4. payfix
+```
+
+ 
+6. Remove all variables with missing values
+```{r}
+# The variables that have missing values are as follows:
+# 1. obs_hour
+# 2. nicu_day
+# 3. preopday
+# 4. payfix
+
+df2$obs_hour <- NULL
+
+df2$nicu_day <- NULL
+
+df2$preopday <- NULL
+
+df2$payfix <- NULL
+
+
+
+
+```
+ 
+7. Refer to the data description in the file `HDD2015-18cy6-20-19.docx`, which variable recording the month of admission?, which variable recording the month of discharge?
+
+```{r}
+# Variable recording the month of admission: moa
+
+# Variable recording the month of discharge: mod
+```
+
+
+8. Which month admitted the most number of patients? 
+
+```{r}
+male_moa <- table(df2$moa)
+
+male_moa
+
+# October admitted the most number of patients
+
+```
+Which month admitted the most number of male patients?
+```{r}
+df3 <- df2 %>% filter (sex == 1)
+table(df3$moa)
+
+
+# The month of October admitted the most number of male patients
+
+
+#Male (M) = "1"
+#Female (F) = "2"
+```
+
+
+9. Which month has the most number of teenage female patients?
+```{r}
+
+df4 <- df2 %>% filter (sex == 2)
+
+df5 <- df4 %>% filter(age > 12, age <= 19)
+
+
+
+# Teenage age:
+
+table(df5$moa)
+
+
+
+# The month of March had the most number of female teenage patients
+```
+
+
+10. Which provider has the most number of female patients in October?
+```{r}
+# For this one you need to take the previous dataframe and filter the month out:
+
+# provider variable: provider
+
+# moa needs to be filtered by month 10
+df6 <- df4 %>% filter (moa == 10) # df6 includes all of the female patients for october
+
+df7 <- df6$provider
+
+table(df7)
+
+
+# Rhode Island hospital has the most number of female patients for October
+
+#------------------------------------------------------------------------------------------
+      #7201 = Newport
+			#7202 = St. Joseph Health Services of RI
+			#7203 = Memorial
+			#7204 = Miriam
+			#7205 = Rhode Island Hospital
+			#7206 = Roger Williams
+			#7209 = South County
+			#7210 = Kent County
+			#7211 = Westerly
+                                                                                                  #7212 = Rehab of RI
+			#7213 = Landmark Medical Center
+			#7214 = Women and Infants
+                                                                                                  #7215 = Bradley
+                                                                                                  #7216 = Butler
+
+
+```
+
+
+11. Is female patients older than male patients, on average?
+
+```{r}
+# Male patients: male patients are in df3
+
+# Female patients are in df4
+
+# Female patients: 
+
+mean(df4$age)
+
+# Male patients:
+
+mean(df3$age)
+
+
+# No, Female patients are younger than male patients on average
+
+
+```
+
+
+12. Calculate the average age of patients by months. Which month has the oldest patients on average age?
+```{r}
+# Dataframe that includes the average age of patients by months without filtering
+# by gender: 
+df2 %>% 
+  group_by(moa) %>% 
+  summarise(mean(age))
+
+# Month that has the oldest patients on average age
+```
+
+
+13. What is the name of the provider that has the highest total charge?
+```{r}
+# In order to solve this problem the first thing that needs to be done is 
+# determine the variable that dictates the total charge
+# Provider variable name: provider
+# Expected source of payment: PAYER
+# Total Patient charges in alphanumeric: TOTAL
+# Total patient charges in numeric format: TOT
+
+df8 <- df2 %>% group_by(tot) # df6 includes all of the female patients for october
+
+df9 <- df8$provider
+
+table(df9)
+
+# The provider that has the highest total charge is:
+
+# 7204: Miriam
+```
+
+
+14. What is the name of the provider that has the least total charge for teenage male on average?
+
+```{r}
+# only male variable:
+
+# df3
+
+# filter for teenage male variable:
+df10 <- df3 %>% filter(age>12, age<= 19)
+
+df11 <- df10$provider
+
+table(df11)
+
+
+# Provider 7214: Women and Infants has the least total charge for teenage male on average
+
+```
+
+
+
+
+
+15. Write a paragraph to summarize the section and give your comments on the results. 
+```{r}
+
+```
+
+
+-------
+
+## II. Data Visualization
+
+```{r}
+#df1, "yod", "payfix","pay_ub92","age",  
+#                      "sex","raceethn","provider","moa", 
+#                      "yoa","mod","admtype", "asource" , 
+#                      "preopday" ,"los", "service" , "icu","ccu",    
+#                      "dispub92", "payer"  ,"drg","trandb", 
+#                      "randbg","randbs","orr", "anes","seq",   
+#                      "lab","dtest", "ther","blood","phar", 
+#                      "other","patcon","bwght","total","tot" ,  
+#                      "ecodub92","b_wt","pt_state","diag_adm","ancilar" ,
+#                      "campus","er_fee","er_chrg","er_mode","obs_chrg",
+#                      "obs_hour","psycchrg","nicu_day"
+```
+
+
+Continue with the data from part I. 
+
+1. Provides at least 10 meaningful plots. Comments on the plots. All plots should have title, caption, appropriate labels on x and y-axis
+Plot 1:
+```{r}
+# Overall ethnographic makeup of admitted patients
+
+df2 %>% 
+  ggplot()+
+  labs(title = "Ethnographic makeup of patients", x = "Race/Ethnicity", y = "Number of total Patients")+
+  geom_bar(mapping= aes(x= raceethn))
+
+# As shown with the graph below the data is heavily weighted with
+# white ethnicity which is something important to keep in mind 
+```
+
+
+
+plot 2:
+```{r}
+  df2 %>%
+  ggplot(mapping= aes(x=age, y = tot))+
+  labs(title = "Comparing age, total cost, and gender", x = "Month of admittance", y = "Total cost")+
+  geom_point()+
+  geom_smooth()+
+  facet_wrap(~sex)+
+  theme_dark() 
+```
+
+Plot 3
+```{r}
+# 
+df2 %>% filter(age > 21) %>% ggplot()+
+  labs(title = "Cost to patients over 21", x = "Age", y = "Number of Patients")+
+  geom_point(mapping = aes(x = age, y = tot, color = raceethn))
+```
+Plot 4
+```{r}
+# Line plot
+
+df2 %>% ggplot()+
+  labs(title = "Number of patients admitted to each hospital", x = "Hospital Code", y = "Number of Patients")+
+  geom_bar(mapping = aes(x = df2$provider))
+```
+Plot 5
+```{r}
+# Is there a difference between gender when comparing the total amount paid
+#df3 <- df2 %>% filter (sex == 1)
+#table(df3$moa)
+# Which month admitted the most male patients?
+df10 %>% 
+  ggplot()+
+  labs(title = "Which month admitted the most teenage male patients", x = "Month of admittance", y = "Number of Patients")+
+  geom_bar(mapping= aes(x=df10$moa))
+
+
+# October is the month that admitted the most teenage male patients
+```
+
+Plot 6
+
+```{r}
+# Which month admitted the most female patients?
+df4 %>% 
+  ggplot()+
+  labs(title = "Which month admitted the most female patients", x = "Month of admittance", y = "Number of Patients")+
+  geom_bar(mapping= aes(x=df4$moa))
+
+# As shown from the graph below january admitted the most female patients
+
+```
+
+
+
+
+
+
+Plot 7
+```{r}
+# How many people admitted based on age
+df2 %>% 
+  ggplot()+
+  labs(title = "Age distribution", x = "Age", y = "number of people admitted that age")+
+  geom_bar(mapping= aes(x=age))
+
+```
+Plot 8
+
+```{r}
+# The data shows that march admitted the most number of teenage female patients
+
+df5 %>% 
+  ggplot()+
+  labs(title = "Which month admitted the most teenage female patients", x = "Month of admittance", y = "Number of Patients")+
+  geom_bar(mapping= aes(x=df5$moa))
+
+# The data shows that march admitted the most number of teenage female patients
+```
+Plot 9
+```{r}
+df2 %>% 
+  ggplot()+
+  labs(title = "Age distribution of the data", x = "Age of patient", y = "Number of Patients")+
+  geom_histogram(mapping= aes(x=df2$age))
+
+
+```
+Plot 10
+```{r}
+df2 %>% 
+  ggplot()+
+  labs(title = "Comparing cost and provider", x = "Provider", y = "total cost")+
+  geom_point(mapping= aes (x=provider, y = tot))
+
+# Provider	7201 = Newport
+			#7202 = St. Joseph Health Services of RI
+			#7203 = Memorial
+			#7204 = Miriam
+			#7205 = Rhode Island Hospital
+			#7206 = Roger Williams
+			#7209 = South County
+		
+			
+			#	7210 = Kent County
+		#	7211 = Westerly
+                                                                         #                7212 = Rehab of RI
+	#		7213 = Landmark Medical Center
+	#		7214 = Women and Infants
+                                                                       #                  7215 = Bradley
+                                                                      #                   7216 = Butler
+
+
+```
+
+
+2. Make an animation plot.
+
+```{r}
+
+# Since a lot of the visuals have already been presented I am choosing to show a better visualization from covid 19 data
+
+
+
+
+
+```
+
+
+
+3. Write a paragraph to summarize the section and give your comments on the results. 
+
+```{r}
+# It was very interesting to see the how the 
+```
+
+
+-------
+
+## III. Predictive Models
+
+
+```{r}
+library(mlbench)
+```
+
+
+
+Continue with the data from part I. Use the follows as the target and input variables: 
+
+*Target Variable*: Create the target variable taking value of 
+
+  - `low` if the total charge of a patient (`tot`) is smaller than the median of the total charge, and
+
+  - `high` otherwise. 
+```{r}
+
+data(PimaIndiansDiabetes)
+df <- PimaIndiansDiabetes
+```
+  
+
+*Input Variables*:
+
+  - "age","sex","raceethn","provider","moa","mod","admtype","campus", 'los'
+  
+-------
+
+1. Use `filter` function to filter out rows where `raceethn==''` or `admtype==''`.
+
+```{r}
+df2 %>% 
+  select(raceethn, admtype) %>%
+  filter(raceethn == '', admtype == '')
+  
+```
+
+
+
+Make sure all the categorical variables are factor, numeric variables are numeric. 
+```{r}
+class(df2$age)
+class(df2$sex)
+class(df2$raceethn)
+class(df2$provider)
+class(df2$moa)
+class(df2$yoa)
+class(df2$mod)
+class(df2$admtype)
+class(df2$asource)
+class(df2$preopday)
+class(df2$los)
+class(df2$service)
+class(df2$icu)
+class(df2$ccu)
+class(df2$dispub92)
+class(df2$payer)
+class(df2$drg)
+class(df2$trandb)
+class(df2$randbg)
+class(df2$randbs)
+class(df2$orr)
+class(df2$anes)
+class(df2$bwght)
+class(df2$total)
+class(df2$tot)
+# remove unitianated columns:
+
+
+
+```
+
+
+
+Set Training : Testing Split = 10 : 90 
+```{r}
+
+data(PimaIndiansDiabetes)
+df <- PimaIndiansDiabetes
+set.seed(2020)
+names(df)[9] <- 'target'
+# The model for the above problem kept saying that
+# all of the variables had different length
+
+
+
+library(caret)
+splitIndex <- createDataPartition(df$target, p = 0.10,
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+
+```
+
+2. Train a decision tree using `rpart`.  Plot the decision tree. Plot the variable importance ranked by the tree. 
+
+```{r}
+# The maxdepth for this must be 1 through 10:
+tuneGrid = expand.grid(maxdepth = 1:10)
+
+# Use cross validation:
+trControl = trainControl(method = "cv",
+                         number = 10)
+
+tree_approach2 <- train(target~., data = df_train,
+                        method = "rpart2",
+                        trControl = trControl,
+                        tuneGrid = tuneGrid)
+
+
+
+```
+
+
+
+```{r}
+
+plot(tree_approach2)
+
+```
+As you can see from the above graph it was most accurate with only 1 fold in predicting diabetes from the dataset
+
+3. Using caret for this question. Set `Training Control` to be: Use Cross-Validation of 5 folds across all models.  Train & tune at least 3 different models (i.e. three different values for `method=` in the train function of caret).  Plot the hyper-parameter tuning plots for each model. 
+
+
+```{r}
+# remove all na or unknown values:
+
+# The maxdepth for this must be 1 through 10:
+tuneGrid = expand.grid(maxdepth = 1:5)
+
+# Use cross validation:
+trControl = trainControl(method = "cv",
+                         number = 5)
+
+tree_approach3 <- train(target~., data = df_train,
+                        method = "rpart2",
+                        trControl = trControl,
+                        tuneGrid = tuneGrid)
+
+
+```
+
+
+
+
+4. Plot the comparison of the models in 3. 
+10 cross validation:
+```{r}
+plot(tree_approach2)
+
+
+```
+
+
+```{r}
+plot(tree_approach3)
+```
+
+```{r}
+
+tuneGrid = expand.grid(maxdepth = 1:15)
+
+# Use cross validation:
+trControl = trainControl(method = "cv",
+                         number = 15)
+
+tree_approach4 <- train(target~., data = df_train,
+                        method = "rpart2",
+                        trControl = trControl,
+                        tuneGrid = tuneGrid)
+
+
+
+```
+
+
+
+
+```{r}
+plot(tree_approach4)
+```
+
+
+
+5. What is your final selection for the model? Test the accuracy of your final model on the test data. 
+```{r}
+# My final selection on the model would be the tree approach 4 
+# as it has an 9% higher accuracy than tree approach 2 and a 1.5% higher accuracy than tree approach 3
+```
+
+
+
+
+
+6. Write a paragraph to summarize the section and give your comments on the results. 
+
+As shown from above I had to move over to the diabetes testing 
+data because the hospital data kept throwing errors. It is interesting to see how the cross validation model that contained 15 folds instead of 10 was more accurate by a total of 1.5%.
+And how the approach that had 10 folds instead of 5 was 8% more accurate
+
+-------
