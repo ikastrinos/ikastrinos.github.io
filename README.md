@@ -44,3 +44,7 @@
 
 [Question 8](https://iank.shinyapps.io/Question8/)
 
+[Question 9](https://iank.shinyapps.io/Question9/)
+
+[Question 10](https://iank.shinyapps.io/Question10/)
+
