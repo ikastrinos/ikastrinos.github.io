@@ -25,6 +25,7 @@
 [Assignment 10](Assignment-10.html)
 
 [Assignment 11](Assignment11.html)
+[Assignment 12](assignment12.html)
 
 [midterm](midterm.html)
 
