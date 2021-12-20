@@ -378,7 +378,7 @@ plot 2:
 ```{r}
   df2 %>%
   ggplot(mapping= aes(x=age, y = tot))+
-  labs(title = "Comparing age, total cost, and gender", x = "Month of admittance", y = "Total cost")+
+  labs(title = "Comparing age, total cost, and gender", x = "Age", y = "Total cost")+
   geom_point()+
   geom_smooth()+
   facet_wrap(~sex)+
@@ -498,7 +498,23 @@ df2 %>%
 # Since a lot of the visuals have already been presented I am choosing to show a better visualization from covid 19 data
 
 
+df <- read_csv("https://covid19.who.int/WHO-COVID-19-global-data.csv")
 
+library(lubridate)
+df$week <- week(df$Date_reported)
+d1 <- df %>% group_by(week, Country) %>% summarise(mean = mean(Cumulative_deaths))
+d2 <- d1 %>% group_by(week) %>% mutate(rank=rank(-mean)) %>% ungroup()
+d3 <- d2 %>% filter(rank <= 10)
+a1 <- d3 %>% ggplot(aes(x=rank, y=mean, group=Country, fill=Country, label=Country)) + geom_col()+
+    geom_text(aes(y = mean, label = Country), hjust = 1.4)+ 
+    coord_flip(clip = "off", expand = FALSE) +scale_x_reverse()+
+    labs(title = 'Week {closest_state}', x='', y='Total Number of Positive Caeses', fill='state')+
+    theme(plot.title = element_text(hjust = 1, size = 22),
+          axis.ticks.y = element_blank(),
+          axis.text.y  = element_blank()) + 
+    transition_states(week)+
+    ease_aes("cubic-in-out")
+animate(a1, nframes = 400)
 
 
 ```
@@ -508,7 +524,8 @@ df2 %>%
 3. Write a paragraph to summarize the section and give your comments on the results. 
 
 ```{r}
-# It was very interesting to see the how the 
+# It was very interesting to see the how the data #included far more people from the white ethnicity and I wonder what the visualizations would look like if the data from race/ethnicities were more evenly distributed
+#  It was also interesting to see which hospitals charged a higher fee on average, and this would be useful information for people and families who are looking to get quality medical care for lower prices.
 ```
 
 
